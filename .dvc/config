@@ -1,0 +1,4 @@
+[core]
+    remote = localremote
+['remote "localremote"']
+    url = /Users/namireddysahithreddy/OneDrive - ExoMatter GmbH/dvc-storage/

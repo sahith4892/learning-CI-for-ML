@@ -28,28 +28,9 @@ jobs:
           python --version
           pip install --upgrade pip
           pip install dvc
-
-      - name: Ensure local DVC remote directory exists
-        shell: bash
-        run: |
           set -euo pipefail
           mkdir -p "${DVC_REMOTE_PATH}"
           echo "DVC remote path ensured at: ${DVC_REMOTE_PATH}"
-
-      - name: Verify repo has DVC metadata
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ ! -d ".dvc" ]; then
-            echo "::error::This repo is missing .dvc metadata. Run 'dvc init' once locally and commit it."
-            exit 1
-          fi
-          echo ".dvc directory found."
-
-      - name: Configure DVC remote if not in repo config
-        shell: bash
-        run: |
-          set -euo pipefail
           # If the repo already has a remote in .dvc/config, we leave it as-is.
           if dvc remote list | grep -q .; then
             echo "A DVC remote is already defined in the repo:"

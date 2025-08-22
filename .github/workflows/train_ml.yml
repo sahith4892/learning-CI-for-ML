@@ -42,11 +42,6 @@ jobs:
             # We DO NOT commit here (this pilot is read-only). If you want to persist remote config:
             # git add .dvc/config && git commit -m "Add DVC local remote" || true
           fi
-
-      - name: Pull raw data (from DVC remote)
-        shell: bash
-        run: |
-          set -euo pipefail
           # Pull just the raw files (fast) — adjust list if you have more pointers.
           # If you prefer "pull everything", use just: dvc pull -q
           if [ -f "data/raw/iris_tiny.csv.dvc" ]; then

@@ -1,0 +1,108 @@
+name: Pull raw data (DVC) and print iris_tiny.csv
+
+on:
+  workflow_dispatch: {}     # run manually for this pilot
+  # If you also want it on every commit, uncomment:
+  # push: {}
+
+permissions:
+  contents: read
+
+jobs:
+  pull-and-print:
+    runs-on: [self-hosted]     # your local runner
+    env:
+      # <-- Change this if your local remote is elsewhere.
+      # Quote carefully - path contains spaces on macOS OneDrive.
+      DVC_REMOTE_NAME: localremote
+      DVC_REMOTE_PATH: "${{ env.HOME }}/OneDrive - ExoMatter GmbH/dvc-storage"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install DVC (base)
+        run: |
+          python -m pip install --upgrade pip
+          pip install dvc
+          dvc version
+
+      - name: Ensure local DVC remote directory exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${DVC_REMOTE_PATH}"
+          echo "DVC remote path ensured at: ${DVC_REMOTE_PATH}"
+
+      - name: Verify repo has DVC metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d ".dvc" ]; then
+            echo "::error::This repo is missing .dvc metadata. Run 'dvc init' once locally and commit it."
+            exit 1
+          fi
+          echo ".dvc directory found."
+
+      - name: Configure DVC remote if not in repo config
+        shell: bash
+        run: |
+          set -euo pipefail
+          # If the repo already has a remote in .dvc/config, we leave it as-is.
+          if dvc remote list | grep -q .; then
+            echo "A DVC remote is already defined in the repo:"
+            dvc remote list || true
+          else
+            echo "No DVC remote found in repo config. Adding default local remote…"
+            # Use quotes to protect spaces in the path.
+            dvc remote add -d "${DVC_REMOTE_NAME}" "${DVC_REMOTE_PATH}"
+            # We DO NOT commit here (this pilot is read-only). If you want to persist remote config:
+            # git add .dvc/config && git commit -m "Add DVC local remote" || true
+          fi
+
+      - name: Pull raw data (from DVC remote)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Pull just the raw files (fast) — adjust list if you have more pointers.
+          # If you prefer "pull everything", use just: dvc pull -q
+          if [ -f "data/raw/iris_tiny.csv.dvc" ]; then
+            dvc pull -q data/raw/iris_tiny.csv.dvc
+          else
+            echo "::warning::Pointer file data/raw/iris_tiny.csv.dvc not found; pulling all."
+            dvc pull -q
+          fi
+
+          if [ -f "data/raw/new_sample.csv.dvc" ]; then
+            dvc pull -q data/raw/new_sample.csv.dvc
+          fi
+
+          echo "After pull, data/raw contains:"
+          ls -lah data/raw || true
+
+      - name: Print iris_tiny.csv (logs + job summary)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f "data/raw/iris_tiny.csv" ]; then
+            echo "::error::data/raw/iris_tiny.csv not found after dvc pull."
+            exit 1
+          fi
+
+          echo "===== iris_tiny.csv (first 20 lines) ====="
+          head -n 20 data/raw/iris_tiny.csv
+
+          {
+            echo "## iris_tiny.csv (first 20 lines)"
+            echo
+            echo '```csv'
+            head -n 20 data/raw/iris_tiny.csv
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

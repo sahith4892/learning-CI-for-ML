@@ -15,7 +15,7 @@ jobs:
       # <-- Change this if your local remote is elsewhere.
       # Quote carefully - path contains spaces on macOS OneDrive.
       DVC_REMOTE_NAME: localremote
-      DVC_REMOTE_PATH: "${{ env.HOME }}/OneDrive - ExoMatter GmbH/dvc-storage"
+      DVC_REMOTE_PATH: "~/OneDrive - ExoMatter GmbH/dvc-storage"
 
     steps:
       - name: Checkout repo

@@ -1,4 +1,4 @@
-name: Pull raw data (DVC) and print iris_tiny.csv
+name: conda Pull raw data (DVC) and print iris_tiny.csv
 
 on:
   workflow_dispatch: {}     # run manually for this pilot

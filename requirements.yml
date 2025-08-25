@@ -1,4 +1,4 @@
-name: learning-ci-cd
+name: learning-ci-cd-test
 channels:
   - conda-forge
   - https://conda.ccdc.cam.ac.uk

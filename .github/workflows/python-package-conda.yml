@@ -35,6 +35,9 @@ jobs:
         run: |
           conda env create -f requirements.yml
           conda init
+
+      - name: Activate conda env
+        run: |
           conda activate learning-ci-cd-test
 
 

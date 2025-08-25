@@ -19,6 +19,7 @@ jobs:
 
     env:
       DVC_REMOTE_NAME: localremote
+      DVC_REMOTE_PATH: "~/OneDrive - ExoMatter GmbH/dvc-storage"
 
     steps:
       - name: Checkout repo

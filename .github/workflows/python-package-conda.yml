@@ -36,14 +36,6 @@ jobs:
           conda env create -f requirements.yml
           conda activate learning-ci-cd-test
 
-      - name: Verify Python & ensure DVC is installed
-        run: |
-          which python
-          python --version
-          # If DVC isn't in your requirements.yml, install it here:
-          python -c "import importlib, sys; sys.exit(0 if importlib.util.find_spec('dvc') else 1)" || pip install -U dvc
-          dvc version
-
 
       - name: Ensure local DVC remote directory exists
         shell: bash
